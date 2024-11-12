@@ -15,8 +15,8 @@ export default function Home() {
     let timer: NodeJS.Timeout;
     if (isRunning) {
       timer = setInterval(() => {
-        setTimeElapsed((prev) => prev + 0.1);
-      }, 100);
+        setTimeElapsed((prev) => prev + 0.01);
+      }, 10);
     }
     return () => clearInterval(timer);
   }, [isRunning]);
@@ -36,14 +36,14 @@ export default function Home() {
 
   const generateRaindrop = () => {
     setRaindrops((prev) => {
-      // Limit the number of raindrops to 20
-      if (prev.length >= 20) return prev;
+      // Limit the number of raindrops
+      if (prev.length >= 50) return prev;
       return [
         ...prev,
         {
           number: getRandomNumber(),
           left: Math.random() * 100,  // Random horizontal position
-          animationDelay: Math.random() * 5 + 's', // Random delay for falling
+          animationDelay: Math.random() * .001 + 's', // Random delay for falling
           animationDuration: Math.random() * 3 + 2 + 's', // Random speed of falling
         }
       ];
@@ -69,7 +69,9 @@ export default function Home() {
       <div className="text-center z-10">
         <h1 className="text-3xl font-bold mb-4">จับเวลา</h1>
         <p className="mb-4">หยุดเวลาให้ได้ 50.00 วินาที!</p>
-        <h2 className="text-6xl font-semibold mb-4">{timeElapsed.toFixed(2)} วินาที</h2>
+        <div className="glitch-wrapper">
+          <div className="glitch text-6xl font-semibold mb-4" data-text={timeElapsed.toFixed(2)}> {timeElapsed.toFixed(2)} วินาที</div>
+        </div>
         <button
           onClick={isRunning ? stopGame : startGame}
           className="px-6 py-3 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200"
