@@ -9,7 +9,7 @@ export default function Home() {
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [result, setResult] = useState<string | null>(null);
-  const [raindrops, setRaindrops] = useState<string[]>([]);
+  const [raindrops, setRaindrops] = useState<any[]>([]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -35,14 +35,32 @@ export default function Home() {
   };
 
   const generateRaindrop = () => {
-    setRaindrops((prev) => [
-      ...prev,
-      getRandomNumber(),
-    ]);
+    setRaindrops((prev) => {
+      // Limit the number of raindrops to 20
+      if (prev.length >= 20) return prev;
+      return [
+        ...prev,
+        {
+          number: getRandomNumber(),
+          left: Math.random() * 100,  // Random horizontal position
+          animationDelay: Math.random() * 5 + 's', // Random delay for falling
+          animationDuration: Math.random() * 3 + 2 + 's', // Random speed of falling
+        }
+      ];
+    });
   };
 
   useEffect(() => {
+    // Add raindrops every 200ms
     const interval = setInterval(generateRaindrop, 200);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Remove raindrops when they are out of the screen
+    const interval = setInterval(() => {
+      setRaindrops((prev) => prev.filter((drop) => drop.animationDuration !== "0s"));
+    }, 100);
     return () => clearInterval(interval);
   }, []);
 
@@ -63,17 +81,17 @@ export default function Home() {
 
       {/* Raindrops */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        {raindrops.map((number, index) => (
+        {raindrops.map((drop, index) => (
           <div
             key={index}
-            className="falling-number absolute text-4xl font-semibold text-[000]"
+            className="falling-number absolute text-8xl font-semibold text-[000]"
             style={{
-              left: `${Math.random() * 100}vw`,
-              animation: `fall ${Math.random() * 3 + 2}s linear infinite`,
-              animationDelay: `${Math.random() * 5}s`,
+              left: `${drop.left}vw`,
+              animation: `fall ${drop.animationDuration} linear infinite`,
+              animationDelay: drop.animationDelay,
             }}
           >
-            {number}
+            {drop.number}
           </div>
         ))}
       </div>
