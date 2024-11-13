@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import ErrorPage from "./components/errorPage";
 
+// ดึงค่าจาก env
+const targetTime = parseFloat(process.env.NEXT_PUBLIC_TARGET_TIME || "0");
+const ticketCode = process.env.NEXT_PUBLIC_TICKET_CODE || "";
+
 const getRandomNumber = () => (Math.random() * 100).toFixed(0);
 
 export default function Home() {
@@ -28,18 +32,21 @@ export default function Home() {
       timer = setInterval(() => {
         setTimeElapsed((prev) => {
           const newTime = parseFloat((prev + 0.01).toFixed(2));
-          // Show error at 100 seconds
-          if (newTime >= 10 && newTime < 15) {
+
+          // Show error at 10 to 15 seconds
+          if (newTime >= 100 && newTime < 105) {
             setShowError(true);
             // Hide error after 5 seconds
             setTimeout(() => {
               setShowError(false);
             }, 5000);
           }
+
           return newTime;
         });
       }, 10);
     }
+
     return () => clearInterval(timer);
   }, [isRunning]);
 
@@ -54,7 +61,13 @@ export default function Home() {
   const stopGame = () => {
     setIsRunning(false);
     const difference = Math.abs(timeElapsed).toFixed(2);
-    setResult(`คุณหยุดที่ ${difference} วินาที!`);
+
+    // ตรวจสอบว่าเวลาหยุดตรงกับที่ตั้งไว้ใน env หรือไม่
+    if (Math.abs(timeElapsed - targetTime) < 0.5) {
+      setResult(`ยินดีด้วย! คุณได้รับตั๋ว! รหัสตั๋วของคุณคือ: ${ticketCode}`);
+    } else {
+      setResult(`คุณหยุดที่ ${difference} วินาที!`);
+    }
   };
 
   const generateRaindrop = () => {
@@ -102,7 +115,9 @@ export default function Home() {
           <div className="text-5xl font-bold mb-2">
             Stupid Hackathon <span className="text-orange-400">KMUTT</span>
           </div>
-          <p className="text-2xl mb-6">ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ 133.00 วินาทีสิ อิอิอิ</p>
+          <p className="text-2xl mb-6">
+            ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ {targetTime} วินาทีสิ อิอิอิ
+          </p>
           {isRunning && (
             <div
               className="absolute"
