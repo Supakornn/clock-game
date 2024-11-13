@@ -11,6 +11,7 @@ export default function Home() {
   const [result, setResult] = useState<string | null>(null);
   const [raindrops, setRaindrops] = useState<any[]>([]);
   const [timerPosition, setTimerPosition] = useState({ top: "50%", left: "50%" });
+  let [clickCount,setClickCount] = useState<number>(0);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -28,9 +29,27 @@ export default function Home() {
     setIsRunning(true);
     setResult(null);
     setRaindrops([]);
+    
   };
 
   const stopGame = () => {
+    if (timeElapsed > 120 && clickCount < 10) { // btn is running  x times
+      setClickCount(clickCount + 1);
+  
+      const timer_btn = document.querySelector('.timer_btn') as HTMLElement;
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+  
+      const randomTop = Math.floor(Math.random() * (windowHeight - timer_btn.offsetHeight));
+      const randomLeft = Math.floor(Math.random() * (windowWidth - timer_btn.offsetWidth));
+  
+      timer_btn.style.position = 'absolute';
+      timer_btn.style.top = `${randomTop}px`;
+      timer_btn.style.left = `${randomLeft}px`;
+      timer_btn.style.transition = 'top 0.5s, left 0.5s';
+      return
+    }
+    setClickCount(0);
     setIsRunning(false);
     const difference = Math.abs(timeElapsed).toFixed(2);
     setResult(`คุณหยุดที่ ${difference} วินาที!`);
@@ -80,7 +99,7 @@ export default function Home() {
         <h1 className="text-5xl font-bold mb-2">
           Stupid Hackathon <span className="text-orange-400">KMUTT</span>
         </h1>
-        <p className="text-2xl mb-6">ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ 133.00 วินาทีสิ อิอิอิ</p>
+        <p className="text-2xl mb-6">ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ 133.XX วินาทีสิ อิอิอิ</p>
         {isRunning && (
           <div
             className="absolute"
