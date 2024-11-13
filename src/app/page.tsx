@@ -10,12 +10,14 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [result, setResult] = useState<string | null>(null);
   const [raindrops, setRaindrops] = useState<any[]>([]);
+  const [timerPosition, setTimerPosition] = useState({ top: "50%", left: "50%" });
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
+
     if (isRunning) {
       timer = setInterval(() => {
-        setTimeElapsed((prev) => prev + 0.01);
+        setTimeElapsed((prev) => parseFloat((prev + 0.01).toFixed(2)));
       }, 10);
     }
     return () => clearInterval(timer);
@@ -25,7 +27,7 @@ export default function Home() {
     setTimeElapsed(0);
     setIsRunning(true);
     setResult(null);
-    setRaindrops([]); // Reset raindrops on game start
+    setRaindrops([]);
   };
 
   const stopGame = () => {
@@ -36,68 +38,92 @@ export default function Home() {
 
   const generateRaindrop = () => {
     setRaindrops((prev) => {
-      // Limit the number of raindrops
       if (prev.length >= 50) return prev;
       return [
         ...prev,
         {
           number: getRandomNumber(),
-          left: Math.random() * 100,  // Random horizontal position
-          animationDelay: Math.random() * .001 + 's', // Random delay for falling
-          animationDuration: Math.random() * 3 + 2 + 's', // Random speed of falling
+          left: Math.random() * 100,
+          animationDelay: Math.random() * 0.001 + "s",
+          animationDuration: Math.random() * 3 + 2 + "s"
         }
       ];
     });
   };
 
   useEffect(() => {
-    // Add raindrops every 200ms
     const interval = setInterval(generateRaindrop, 200);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    // Remove raindrops when they are out of the screen
     const interval = setInterval(() => {
       setRaindrops((prev) => prev.filter((drop) => drop.animationDuration !== "0s"));
     }, 100);
     return () => clearInterval(interval);
   }, []);
 
+  // Move the timer position every 1.5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimerPosition({
+        top: `${Math.random() * 80 + 10}%`,
+        left: `${Math.random() * 80 + 10}%`
+      });
+    }, 1500);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 relative overflow-hidden">
-      <div className="text-center z-10">
-        <h1 className="text-3xl font-bold mb-4">จับเวลา</h1>
-        <p className="mb-4">หยุดเวลาให้ได้ 50.00 วินาที!</p>
-        <div className="glitch-wrapper">
-          <div className="glitch text-6xl font-semibold mb-4" data-text={timeElapsed.toFixed(2)}> {timeElapsed.toFixed(2)} วินาที</div>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 relative overflow-hidden">
+      <div className="text-center z-10 space-y-6">
+        <h1 className="text-5xl font-bold mb-2">
+          Stupid Hackathon <span className="text-orange-400">KMUTT</span>
+        </h1>
+        <p className="text-2xl mb-6">ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ 133.00 วินาทีสิ อิอิอิ</p>
+        {isRunning && (
+          <div
+            className="absolute"
+            style={{
+              top: timerPosition.top,
+              left: timerPosition.left,
+              transform: "translate(-50%, -50%)",
+              transition: "top 0.5s, left 0.5s"
+            }}
+          >
+            <div className="glitch text-6xl font-semibold mb-6" data-text={timeElapsed.toFixed(2)}>
+              {timeElapsed.toFixed(2)} วินาที
+            </div>
+          </div>
+        )}
+
         <button
           onClick={isRunning ? stopGame : startGame}
-          className="px-6 py-3 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200"
+          className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg"
         >
           {isRunning ? "หยุดเวลา!" : "เริ่มเกมใหม่"}
         </button>
-        {result && <p className="mt-4 text-xl text-green-600">{result}</p>}
+        {result && <p className="mt-6 text-xl text-green-600 font-semibold">{result}</p>}
       </div>
 
       {/* Raindrops */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        {raindrops.map((drop, index) => (
-          <div
-            key={index}
-            className="falling-number absolute text-8xl font-semibold text-[000]"
-            style={{
-              left: `${drop.left}vw`,
-              animation: `fall ${drop.animationDuration} linear infinite`,
-              animationDelay: drop.animationDelay,
-            }}
-          >
-            {drop.number}
-          </div>
-        ))}
-      </div>
-
+      {isRunning && (
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          {raindrops.map((drop, index) => (
+            <div
+              key={index}
+              className="falling-number absolute text-8xl font-semibold text-gray-600 opacity-75"
+              style={{
+                left: `${drop.left}vw`,
+                animation: `fall ${drop.animationDuration} linear infinite`,
+                animationDelay: drop.animationDelay
+              }}
+            >
+              {drop.number}
+            </div>
+          ))}
+        </div>
+      )}
       {/* CSS for raindrop effect */}
       <style jsx>{`
         @keyframes fall {
