@@ -75,7 +75,7 @@ export default function Home() {
       timer_btn.style.position = 'absolute';
       timer_btn.style.top = `${randomTop}px`;
       timer_btn.style.left = `${randomLeft}px`;
-      timer_btn.style.transition = 'top 0.5s, left 0.5s';
+      timer_btn.style.transition = 'top 0.1s, left 0.1s';
       return
     }
     setClickCount(0);
