@@ -1,26 +1,54 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import ErrorPage from "./components/errorPage";
 
-// Helper function to generate a random number
+// ดึงค่าจาก env
+const targetTime = parseFloat(process.env.NEXT_PUBLIC_TARGET_TIME || "0");
+const btn_running_times = parseFloat(process.env.NEXT_PUBLIC_BTN_RUNNING_TIMES || "0");
+const ticketCode = process.env.NEXT_PUBLIC_TICKET_CODE || "";
+
 const getRandomNumber = () => (Math.random() * 100).toFixed(0);
 
 export default function Home() {
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [result, setResult] = useState<string | null>(null);
-  const [raindrops, setRaindrops] = useState<any[]>([]);
+
+  interface Raindrop {
+    number: string;
+    left: number;
+    animationDelay: string;
+    animationDuration: string;
+  }
+
+  const [raindrops, setRaindrops] = useState<Raindrop[]>([]);
   const [timerPosition, setTimerPosition] = useState({ top: "50%", left: "50%" });
   let [clickCount,setClickCount] = useState<number>(0);
+  const [showError, setShowError] = useState<boolean>(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
     if (isRunning) {
       timer = setInterval(() => {
-        setTimeElapsed((prev) => parseFloat((prev + 0.01).toFixed(2)));
+        setTimeElapsed((prev) => {
+          const newTime = parseFloat((prev + 0.01).toFixed(2));
+
+          // Show error at 10 to 15 seconds
+          if (newTime >= 100 && newTime < 105) {
+            setShowError(true);
+            // Hide error after 5 seconds
+            setTimeout(() => {
+              setShowError(false);
+            }, 5000);
+          }
+
+          return newTime;
+        });
       }, 10);
     }
+
     return () => clearInterval(timer);
   }, [isRunning]);
 
@@ -30,10 +58,11 @@ export default function Home() {
     setResult(null);
     setRaindrops([]);
     
+    setShowError(false);
   };
 
   const stopGame = () => {
-    if (timeElapsed > 120 && clickCount < 10) { // btn is running  x times
+    if (timeElapsed > targetTime-10 && clickCount < btn_running_times) { // btn is running  x times
       setClickCount(clickCount + 1);
   
       const timer_btn = document.querySelector('.timer_btn') as HTMLElement;
@@ -51,8 +80,16 @@ export default function Home() {
     }
     setClickCount(0);
     setIsRunning(false);
+    const timer_btn = document.querySelector('.timer_btn') as HTMLElement;
+    timer_btn.style.position = 'unset';
     const difference = Math.abs(timeElapsed).toFixed(2);
-    setResult(`คุณหยุดที่ ${difference} วินาที!`);
+
+    // ตรวจสอบว่าเวลาหยุดตรงกับที่ตั้งไว้ใน env หรือไม่
+    if (Math.abs(timeElapsed - targetTime) < 0.5) {
+      setResult(`ยินดีด้วย! คุณได้รับตั๋ว! รหัสตั๋วของคุณคือ: ${ticketCode}`);
+    } else {
+      setResult(`คุณหยุดที่ ${difference} วินาที!`);
+    }
   };
 
   const generateRaindrop = () => {
@@ -82,7 +119,6 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Move the timer position every 1.5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setTimerPosition({
@@ -94,68 +130,76 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 relative overflow-hidden">
-      <div className="text-center z-10 space-y-6">
-        <h1 className="text-5xl font-bold mb-2">
-          Stupid Hackathon <span className="text-orange-400">KMUTT</span>
-        </h1>
-        <p className="text-2xl mb-6">ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ 133.XX วินาทีสิ อิอิอิ</p>
-        {isRunning && (
-          <div
-            className="absolute"
-            style={{
-              top: timerPosition.top,
-              left: timerPosition.left,
-              transform: "translate(-50%, -50%)",
-              transition: "top 0.5s, left 0.5s"
-            }}
-          >
-            <div className="glitch text-6xl font-semibold mb-6" data-text={timeElapsed.toFixed(2)}>
-              {timeElapsed.toFixed(2)} วินาที
+    <>
+      {showError && <ErrorPage />}
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 relative overflow-hidden">
+        <div className="text-center z-10 space-y-6">
+          <div className="text-5xl font-bold mb-2">
+            Stupid Hackathon <span className="text-orange-400">KMUTT</span>
+          </div>
+          <p className="text-2xl mb-6">
+            ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ {targetTime} วินาทีสิ อิอิอิ
+          </p>
+          {isRunning && (
+            <div
+              className="absolute"
+              style={{
+                top: timerPosition.top,
+                left: timerPosition.left,
+                transform: "translate(-50%, -50%)",
+                transition: "top 0.5s, left 0.5s"
+              }}
+            >
+              <div
+                className="glitch text-6xl font-semibold mb-6"
+                data-text={timeElapsed.toFixed(2)}
+              >
+                {timeElapsed.toFixed(2)} วินาที
+              </div>
             </div>
+          )}
+
+          <button
+            onClick={isRunning ? stopGame : startGame}
+            className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg timer_btn"
+          >
+            {isRunning ? "หยุดเวลา!" : "เริ่มเกมใหม่"}
+          </button>
+          {result && <p className="mt-6 text-xl text-green-600 font-semibold">{result}</p>}
+        </div>
+
+        {/* Raindrops */}
+        {isRunning && (
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+            {raindrops.map((drop, index) => (
+              <div
+                key={index}
+                className="falling-number absolute text-8xl font-semibold text-gray-600 opacity-75"
+                style={{
+                  left: `${drop.left}vw`,
+                  animation: `fall ${drop.animationDuration} linear infinite`,
+                  animationDelay: drop.animationDelay
+                }}
+              >
+                {drop.number}
+              </div>
+            ))}
           </div>
         )}
 
-        <button
-          onClick={isRunning ? stopGame : startGame}
-          className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg"
-        >
-          {isRunning ? "หยุดเวลา!" : "เริ่มเกมใหม่"}
-        </button>
-        {result && <p className="mt-6 text-xl text-green-600 font-semibold">{result}</p>}
+        <style jsx>{`
+          @keyframes fall {
+            0% {
+              transform: translateY(-100px);
+              opacity: 1;
+            }
+            100% {
+              transform: translateY(100vh);
+              opacity: 0;
+            }
+          }
+        `}</style>
       </div>
-
-      {/* Raindrops */}
-      {isRunning && (
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          {raindrops.map((drop, index) => (
-            <div
-              key={index}
-              className="falling-number absolute text-8xl font-semibold text-gray-600 opacity-75"
-              style={{
-                left: `${drop.left}vw`,
-                animation: `fall ${drop.animationDuration} linear infinite`,
-                animationDelay: drop.animationDelay
-              }}
-            >
-              {drop.number}
-            </div>
-          ))}
-        </div>
-      )}
-      {/* CSS for raindrop effect */}
-      <style jsx>{`
-        @keyframes fall {
-          0% {
-            transform: translateY(-100px);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(100vh);
-            opacity: 0;
-          }
-        }
-      `}</style>
-    </div>
+    </>
   );
 }
