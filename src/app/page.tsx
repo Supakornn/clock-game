@@ -7,6 +7,7 @@ import ErrorPage from "./components/errorPage";
 const targetTime = parseFloat(process.env.NEXT_PUBLIC_TARGET_TIME || "0");
 const btn_running_times = parseFloat(process.env.NEXT_PUBLIC_BTN_RUNNING_TIMES || "0");
 const ticketCode = process.env.NEXT_PUBLIC_TICKET_CODE || "";
+const errorPageTime = parseInt(process.env.NEXT_PUBLIC_ERROR_PAGE_TIME || "0");
 
 const getRandomNumber = () => (Math.random() * 100).toFixed(0);
 
@@ -24,7 +25,7 @@ export default function Home() {
 
   const [raindrops, setRaindrops] = useState<Raindrop[]>([]);
   const [timerPosition, setTimerPosition] = useState({ top: "50%", left: "50%" });
-  let [clickCount,setClickCount] = useState<number>(0);
+  const [clickCount, setClickCount] = useState<number>(0);
   const [showError, setShowError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function Home() {
           const newTime = parseFloat((prev + 0.01).toFixed(2));
 
           // Show error at 10 to 15 seconds
-          if (newTime >= 100 && newTime < 105) {
+          if (newTime >= errorPageTime && newTime < errorPageTime + 5) {
             setShowError(true);
             // Hide error after 5 seconds
             setTimeout(() => {
@@ -57,31 +58,32 @@ export default function Home() {
     setIsRunning(true);
     setResult(null);
     setRaindrops([]);
-    
+
     setShowError(false);
   };
 
   const stopGame = () => {
-    if (timeElapsed > targetTime-10 && clickCount < btn_running_times) { // btn is running  x times
+    if (timeElapsed > targetTime - 10 && clickCount < btn_running_times) {
+      // btn is running  x times
       setClickCount(clickCount + 1);
-  
-      const timer_btn = document.querySelector('.timer_btn') as HTMLElement;
+
+      const timer_btn = document.querySelector(".timer_btn") as HTMLElement;
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
-  
+
       const randomTop = Math.floor(Math.random() * (windowHeight - timer_btn.offsetHeight));
       const randomLeft = Math.floor(Math.random() * (windowWidth - timer_btn.offsetWidth));
-  
-      timer_btn.style.position = 'absolute';
+
+      timer_btn.style.position = "absolute";
       timer_btn.style.top = `${randomTop}px`;
       timer_btn.style.left = `${randomLeft}px`;
-      timer_btn.style.transition = 'top 0.1s, left 0.1s';
-      return
+      timer_btn.style.transition = "top 0.1s, left 0.1s";
+      return;
     }
     setClickCount(0);
     setIsRunning(false);
-    const timer_btn = document.querySelector('.timer_btn') as HTMLElement;
-    timer_btn.style.position = 'unset';
+    const timer_btn = document.querySelector(".timer_btn") as HTMLElement;
+    timer_btn.style.position = "unset";
     const difference = Math.abs(timeElapsed).toFixed(2);
 
     // ตรวจสอบว่าเวลาหยุดตรงกับที่ตั้งไว้ใน env หรือไม่
