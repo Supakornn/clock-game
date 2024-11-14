@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import ErrorPage from "./components/errorPage";
+import Image from 'next/image';
 
 export default function Home() {
   const [targetTime, setTargetTime] = useState<number>(0);
@@ -21,6 +22,9 @@ export default function Home() {
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
 
   const [ticketCode, setTicketCode] = useState<string | null>(null);
+  const [badluck, setBadluck] = useState<string>('');
+  const [bl_updatesCount, setBL_UpdatesCount] = useState<number>(0);
+  const [timeElapsedSpeed, setTimeElapsedSpeed] = useState<number>(10);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -32,6 +36,45 @@ export default function Home() {
     };
     fetchConfig();
   }, []);
+
+  useEffect(() => {
+    const options = ['duck', 'small', 'slow', 'fast'];
+      const getRandomBadluck = () => {
+        const randomIndex = Math.floor(Math.random() * options.length);
+        return options[randomIndex];
+      };
+      const scheduleNextUpdate = () => {
+        if (bl_updatesCount < 5) {
+          const randomDelay = Math.floor(Math.random() * ((targetTime-10 * 1000) - (30 * 1000) + 1)) + 30 * 1000;
+          const timeoutId = setTimeout(() => {
+            const newBadluck = getRandomBadluck();
+            setBadluck(newBadluck);
+            setBL_UpdatesCount(prev => prev + 1);
+            if(newBadluck=='fast'){
+              setTimeElapsedSpeed(0)
+            }else if(newBadluck=='slow'){
+              setTimeElapsedSpeed(1000)
+            }
+            setTimeout(() => {
+              setBadluck('');
+              setTimeElapsedSpeed(10);
+            }, 5*1000); 
+  
+            scheduleNextUpdate();
+          }, randomDelay);
+  
+          return timeoutId;
+        }
+      };
+  
+      const firstTimeout = scheduleNextUpdate();
+  
+      return () => {
+        if (firstTimeout) {
+          clearTimeout(firstTimeout);
+        }
+      };
+  }, [bl_updatesCount]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -50,11 +93,11 @@ export default function Home() {
 
           return newTime;
         });
-      }, 10);
+      }, timeElapsedSpeed);
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, errorPageTime, errorCount]);
+  }, [isRunning, errorPageTime, errorCount,timeElapsedSpeed]);
 
   const startGame = () => {
     setTimeElapsed(0);
@@ -186,9 +229,10 @@ export default function Home() {
               }}
             >
               <div
-                className="glitch text-6xl font-semibold mb-6"
+                className={`glitch font-semibold mb-6 ${badluck === 'small' ? 'text-[10px]' : 'text-6xl'}`}
                 data-text={timeElapsed.toFixed(2)}
               >
+                {badluck=='duck'?<img className="absolute bottom-[-5rem] left-[-4rem]" src="/duck.gif"></img>:null}
                 {timeElapsed.toFixed(2)} วินาที
               </div>
             </div>
