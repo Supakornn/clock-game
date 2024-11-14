@@ -44,10 +44,10 @@ export default function Home({
           const newTime = parseFloat((prev + 0.01).toFixed(2));
 
           // Show error at time range
-          if (newTime >= errorPageTime && newTime < errorPageTime + (15+30)) {
+          if (newTime >= errorPageTime && newTime < errorPageTime + (15 + 30)) {
             setShowError(true);
-            setErrorCount(errorCount+1);
-            setTimeout(() => setShowError(false), 1000*(15+15));
+            setErrorCount(errorCount + 1);
+            setTimeout(() => setShowError(false), 1000 * (15 + 15));
           }
 
           return newTime;
@@ -67,7 +67,7 @@ export default function Home({
   };
 
   const stopGame = () => {
-    if (timeElapsed > targetTime - 10 && clickCount < ( btn_running_times * patternLv )) {
+    if (timeElapsed > targetTime - 10 && clickCount < btn_running_times * patternLv) {
       if (patternLv > 5) setPatternLv(1);
 
       setClickCount(clickCount + 1);
@@ -145,7 +145,7 @@ export default function Home({
             Stupid Hackathon <span className="text-orange-400">KMUTT</span>
           </div>
           <p className="text-2xl mb-6">
-            ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ {errorCount<1?15:targetTime} วินาทีสิ อิอิอิ
+            ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ {errorCount < 1 ? 15 : targetTime} วินาทีสิ อิอิอิ
           </p>
           {isRunning && (
             <div
@@ -168,7 +168,10 @@ export default function Home({
 
           <button
             tabIndex={-1}
-            onClick={(e) =>{ isRunning ? stopGame() : startGame();(e.target as HTMLButtonElement).blur();}}
+            onClick={(e) => {
+              isRunning ? stopGame() : startGame();
+              (e.target as HTMLButtonElement).blur();
+            }}
             className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg timer_btn"
           >
             {isRunning ? "หยุดเวลา!" : "เริ่มเกมใหม่"}
