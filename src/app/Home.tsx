@@ -42,7 +42,7 @@ export default function Home({
           const newTime = parseFloat((prev + 0.01).toFixed(2));
 
           // Show error at time range
-          if (newTime >= errorPageTime && newTime < errorPageTime + 5) {
+          if (newTime >= errorPageTime && newTime < errorPageTime + 20) {
             setShowError(true);
             setTimeout(() => setShowError(false), 5000); // Hide error after 5 seconds
           }
@@ -64,7 +64,7 @@ export default function Home({
   };
 
   const stopGame = () => {
-    if (timeElapsed > targetTime - 10 && clickCount < btn_running_times) {
+    if (timeElapsed > targetTime - 15 && clickCount < btn_running_times) {
       setClickCount(clickCount + 1);
 
       const timer_btn = document.querySelector(".timer_btn") as HTMLElement;
