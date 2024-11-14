@@ -17,7 +17,7 @@ export default function Home() {
   const [timerPosition, setTimerPosition] = useState({ top: "50%", left: "50%" });
   const [clickCount, setClickCount] = useState<number>(0);
   const [patternLv, setPatternLv] = useState<number>(1);
-  const [showError, setShowError] = useState<boolean>(false);
+  const [showError, setShowError] = useState<string>('');
   const [errorCount, setErrorCount] = useState<number>(0);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
 
@@ -85,10 +85,15 @@ export default function Home() {
           const newTime = parseFloat((prev + 0.01).toFixed(2));
 
           // Show error at time range
-          if (newTime >= errorPageTime && newTime < errorPageTime + (15 + 30)) {
-            setShowError(true);
-            setErrorCount(1);
-            setTimeout(() => setShowError(false), 1000 * (15 + 15));
+          if (newTime >= errorPageTime && newTime < errorPageTime + (15 + 30) && errorCount < 1) {
+              setErrorCount(1);
+              const fetchTicket = async () => {
+              const response = await fetch("/api/getTicket");
+              const data = await response.json();
+              setShowError(data.message);
+            };
+            fetchTicket();
+            setTimeout(() => setShowError(''), 1000 * (15 + 15));
           }
 
           return newTime;
@@ -104,7 +109,7 @@ export default function Home() {
     setIsRunning(true);
     setResult(null);
     setRaindrops([]);
-    setShowError(false);
+    setShowError('');
   };
 
   const stopGame = async () => {
@@ -209,7 +214,7 @@ export default function Home() {
 
   return (
     <>
-      {showError && <ErrorPage />}
+      {showError!='' && <ErrorPage />}
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 relative overflow-hidden">
         <div className="text-center z-10 space-y-6">
           <div className="text-5xl font-bold mb-2">

@@ -20,7 +20,7 @@ const ErrorPage = () => {
 
       {/* Message */}
       <p className="text-[#48484A] mb-2">
-        <span>jabvela.com</span> is currently unable to handle this request.
+        <span>server is currently unable to handle this request.</span>
       </p>
 
       {/* Error Code */}
