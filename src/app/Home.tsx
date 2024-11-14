@@ -104,7 +104,7 @@ export default function Home() {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ timeElapsed })
+          body: JSON.stringify({ timeElapsed,btnRunningTimes,errorCount })
         });
 
         const data = await response.json();
