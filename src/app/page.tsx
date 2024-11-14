@@ -7,14 +7,11 @@ export default function HomePage() {
   const [isDevToolsOpen, setIsDevToolsOpen] = useState(true);
 
   useEffect(() => {
-    if (
-      (window as typeof window & { __REACT_DEVTOOLS_GLOBAL_HOOK__?: unknown })
-        .__REACT_DEVTOOLS_GLOBAL_HOOK__
-    ) {
+    if ((window as typeof window & { __REACT_DEVTOOLS_GLOBAL_HOOK__?: unknown }).__REACT_DEVTOOLS_GLOBAL_HOOK__){
       console.log("React DevTools detected!");
       setIsDevToolsOpen(true);
     }else{
-      false
+      setIsDevToolsOpen(false);
     }
   }, []);
 
