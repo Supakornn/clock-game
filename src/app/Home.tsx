@@ -1,39 +1,36 @@
-// src/app/Home.tsx - Client Component
 "use client";
 
 import { useState, useEffect } from "react";
 import ErrorPage from "./components/errorPage";
 
-interface HomeProps {
-  targetTime: number;
-  btn_running_times: number;
-  ticketCode: string;
-  errorPageTime: number;
-}
-
-export default function Home({
-  targetTime,
-  btn_running_times,
-  ticketCode,
-  errorPageTime
-}: HomeProps) {
+export default function Home() {
+  const [targetTime, setTargetTime] = useState<number>(0);
+  const [btnRunningTimes, setBtnRunningTimes] = useState<number>(0);
+  const [errorPageTime, setErrorPageTime] = useState<number>(0);
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [result, setResult] = useState<string | null>(null);
-
-  interface Raindrop {
-    number: string;
-    left: number;
-    animationDelay: string;
-    animationDuration: string;
-  }
-
-  const [raindrops, setRaindrops] = useState<Raindrop[]>([]);
+  const [raindrops, setRaindrops] = useState<
+    { number: string; left: number; animationDelay: string; animationDuration: string }[]
+  >([]);
   const [timerPosition, setTimerPosition] = useState({ top: "50%", left: "50%" });
   const [clickCount, setClickCount] = useState<number>(0);
   const [patternLv, setPatternLv] = useState<number>(1);
   const [showError, setShowError] = useState<boolean>(false);
   const [errorCount, setErrorCount] = useState<number>(0);
+
+  const [ticketCode, setTicketCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      const response = await fetch("/api/getGameData");
+      const data = await response.json();
+      setTargetTime(data.targetTime);
+      setBtnRunningTimes(data.btnRunningTimes);
+      setErrorPageTime(data.errorPageTime);
+    };
+    fetchConfig();
+  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -56,7 +53,7 @@ export default function Home({
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, errorPageTime]);
+  }, [isRunning, errorPageTime, errorCount]);
 
   const startGame = () => {
     setTimeElapsed(0);
@@ -66,8 +63,9 @@ export default function Home({
     setShowError(false);
   };
 
-  const stopGame = () => {
-    if (timeElapsed > targetTime - 10 && clickCount < btn_running_times * patternLv) {
+  const stopGame = async () => {
+    // เช็คว่าเวลาที่หยุดยังไม่เกินจากเวลาที่กำหนด (targetTime - 10) และยังไม่ถึงจำนวนการคลิกสูงสุด
+    if (timeElapsed > targetTime - 10 && clickCount < btnRunningTimes * patternLv) {
       if (patternLv > 5) setPatternLv(1);
 
       setClickCount(clickCount + 1);
@@ -85,18 +83,44 @@ export default function Home({
       timer_btn.style.transition = "top 0.1s, left 0.1s";
       return;
     }
+
+    // รีเซ็ตค่าเมื่อหยุดเกม
     setClickCount(0);
     setErrorCount(0);
+
     if (timeElapsed > targetTime - 10) setPatternLv(patternLv + 1);
+
     setIsRunning(false);
+
     const timer_btn = document.querySelector(".timer_btn") as HTMLElement;
     timer_btn.style.position = "unset";
+
     const difference = Math.abs(timeElapsed).toFixed(2);
 
     if (Math.abs(timeElapsed - targetTime) < 0.5) {
-      setResult(`ยินดีด้วย! คุณได้รับตั๋ว! รหัสตั๋วของคุณคือ: ${ticketCode}`);
+      try {
+        const response = await fetch("/api/getTicketCode", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ timeElapsed })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setTicketCode(data.ticketCode);
+          setResult(`ยินดีด้วย! คุณได้รับตั๋ว! รหัสตั๋วของคุณคือ: ${data.ticketCode}`);
+        } else {
+          setResult(`คุณหยุดที่ ${difference} วินาที! ไม่ได้รับตั๋ว`);
+        }
+      } catch (error) {
+        console.error("Error fetching ticket code:", error);
+        setResult(`เกิดข้อผิดพลาดในการขอรหัสตั๋ว!`);
+      }
     } else {
-      setResult(`คุณหยุดที่ ${difference} วินาที!`);
+      setResult(`คุณหยุดที่ ${difference} วินาที! ไม่ตรงกับเวลาที่ตั้งไว้`);
     }
   };
 
@@ -170,7 +194,7 @@ export default function Home({
           <button
             tabIndex={-1}
             onClick={(e) => {
-              isRunning ? stopGame() : startGame();
+              (() => (isRunning ? stopGame() : startGame()))();
               (e.target as HTMLButtonElement).blur();
             }}
             className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg timer_btn"
