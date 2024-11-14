@@ -41,7 +41,7 @@ export default function Home({
         setTimeElapsed((prev) => {
           const newTime = parseFloat((prev + 0.01).toFixed(2));
 
-          // Show error at specific time range
+          // Show error at time range
           if (newTime >= errorPageTime && newTime < errorPageTime + 5) {
             setShowError(true);
             setTimeout(() => setShowError(false), 5000); // Hide error after 5 seconds
@@ -86,7 +86,6 @@ export default function Home({
     timer_btn.style.position = "unset";
     const difference = Math.abs(timeElapsed).toFixed(2);
 
-    // ตรวจสอบว่าเวลาหยุดตรงกับที่ตั้งไว้ใน env หรือไม่
     if (Math.abs(timeElapsed - targetTime) < 0.5) {
       setResult(`ยินดีด้วย! คุณได้รับตั๋ว! รหัสตั๋วของคุณคือ: ${ticketCode}`);
     } else {
