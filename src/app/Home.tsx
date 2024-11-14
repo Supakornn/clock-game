@@ -44,7 +44,7 @@ export default function Home() {
           // Show error at time range
           if (newTime >= errorPageTime && newTime < errorPageTime + (15 + 30)) {
             setShowError(true);
-            setErrorCount(errorCount + 1);
+            setErrorCount(1);
             setTimeout(() => setShowError(false), 1000 * (15 + 15));
           }
 
