@@ -33,6 +33,7 @@ export default function Home({
   const [clickCount, setClickCount] = useState<number>(0);
   const [patternLv, setPatternLv] = useState<number>(1);
   const [showError, setShowError] = useState<boolean>(false);
+  const [errorCount, setErrorCount] = useState<number>(0);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -43,9 +44,10 @@ export default function Home({
           const newTime = parseFloat((prev + 0.01).toFixed(2));
 
           // Show error at time range
-          if (newTime >= errorPageTime && newTime < errorPageTime + 20) {
+          if (newTime >= errorPageTime && newTime < errorPageTime + (15+30)) {
             setShowError(true);
-            setTimeout(() => setShowError(false), 5000); // Hide error after 5 seconds
+            setErrorCount(errorCount+1);
+            setTimeout(() => setShowError(false), 1000*(15+15));
           }
 
           return newTime;
@@ -143,7 +145,7 @@ export default function Home({
             Stupid Hackathon <span className="text-orange-400">KMUTT</span>
           </div>
           <p className="text-2xl mb-6">
-            ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ {targetTime} วินาทีสิ อิอิอิ
+            ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ {errorCount!=1?15:targetTime} วินาทีสิ อิอิอิ
           </p>
           {isRunning && (
             <div
