@@ -20,7 +20,6 @@ export default function Home() {
   const [errorCount, setErrorCount] = useState<number>(0);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
 
-  const [ticketCode, setTicketCode] = useState<string | null>(null);
   const [badluck, setBadluck] = useState<string>("");
   const [bl_updatesCount, setBL_UpdatesCount] = useState<number>(0);
   const [timeElapsedSpeed, setTimeElapsedSpeed] = useState<number>(10);
@@ -159,9 +158,8 @@ export default function Home() {
 
         if (data.success) {
           setIsCorrect(true);
-          setTicketCode(data.ticketCode);
           setResult(
-            `เก่งมากกกกกก! รหัสตั๋วคือ: ${ticketCode} เอาไปใส่ใน "ใส่โปรโมชันโค้ด" บนหน้าอีเวนต์ป๊อป ได้เลย!`
+            `เก่งมากกกกกก! รหัสตั๋วคือ: ${data.ticketCode} เอาไปใส่ใน "ใส่โปรโมชันโค้ด" บนหน้าอีเวนต์ป๊อป ได้เลย!`
           );
         } else {
           setResult(`ได้ ${difference} วินาที! ยังไม่ได้นะพยายามอีกนิดนุง`);
