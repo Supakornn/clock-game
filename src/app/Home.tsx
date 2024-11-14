@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import ErrorPage from "./components/errorPage";
-import Image from 'next/image';
+import Image from "next/image";
 
 export default function Home() {
   const [targetTime, setTargetTime] = useState<number>(0);
@@ -17,12 +17,12 @@ export default function Home() {
   const [timerPosition, setTimerPosition] = useState({ top: "50%", left: "50%" });
   const [clickCount, setClickCount] = useState<number>(0);
   const [patternLv, setPatternLv] = useState<number>(1);
-  const [showError, setShowError] = useState<string>('');
+  const [showError, setShowError] = useState<string>("");
   const [errorCount, setErrorCount] = useState<number>(0);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
 
   const [ticketCode, setTicketCode] = useState<string | null>(null);
-  const [badluck, setBadluck] = useState<string>('');
+  const [badluck, setBadluck] = useState<string>("");
   const [bl_updatesCount, setBL_UpdatesCount] = useState<number>(0);
   const [timeElapsedSpeed, setTimeElapsedSpeed] = useState<number>(10);
 
@@ -38,43 +38,44 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const options = ['duck', 'small', 'slow', 'fast'];
-      const getRandomBadluck = () => {
-        const randomIndex = Math.floor(Math.random() * options.length);
-        return options[randomIndex];
-      };
-      const scheduleNextUpdate = () => {
-        if (bl_updatesCount < 5) {
-          const randomDelay = Math.floor(Math.random() * ((targetTime-10 * 1000) - (30 * 1000) + 1)) + 30 * 1000;
-          const timeoutId = setTimeout(() => {
-            const newBadluck = getRandomBadluck();
-            setBadluck(newBadluck);
-            setBL_UpdatesCount(prev => prev + 1);
-            if(newBadluck=='fast'){
-              setTimeElapsedSpeed(0)
-            }else if(newBadluck=='slow'){
-              setTimeElapsedSpeed(1000)
-            }
-            setTimeout(() => {
-              setBadluck('');
-              setTimeElapsedSpeed(10);
-            }, 5*1000); 
-  
-            scheduleNextUpdate();
-          }, randomDelay);
-  
-          return timeoutId;
-        }
-      };
-  
-      const firstTimeout = scheduleNextUpdate();
-  
-      return () => {
-        if (firstTimeout) {
-          clearTimeout(firstTimeout);
-        }
-      };
-  }, [bl_updatesCount]);
+    const options = ["duck", "small", "slow", "fast"];
+    const getRandomBadluck = () => {
+      const randomIndex = Math.floor(Math.random() * options.length);
+      return options[randomIndex];
+    };
+    const scheduleNextUpdate = () => {
+      if (bl_updatesCount < 5) {
+        const randomDelay =
+          Math.floor(Math.random() * (targetTime - 10 * 1000 - 30 * 1000 + 1)) + 30 * 1000;
+        const timeoutId = setTimeout(() => {
+          const newBadluck = getRandomBadluck();
+          setBadluck(newBadluck);
+          setBL_UpdatesCount((prev) => prev + 1);
+          if (newBadluck == "fast") {
+            setTimeElapsedSpeed(0);
+          } else if (newBadluck == "slow") {
+            setTimeElapsedSpeed(1000);
+          }
+          setTimeout(() => {
+            setBadluck("");
+            setTimeElapsedSpeed(10);
+          }, 5 * 1000);
+
+          scheduleNextUpdate();
+        }, randomDelay);
+
+        return timeoutId;
+      }
+    };
+
+    const firstTimeout = scheduleNextUpdate();
+
+    return () => {
+      if (firstTimeout) {
+        clearTimeout(firstTimeout);
+      }
+    };
+  }, [bl_updatesCount, targetTime]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -86,14 +87,14 @@ export default function Home() {
 
           // Show error at time range
           if (newTime >= errorPageTime && newTime < errorPageTime + (15 + 30) && errorCount < 1) {
-              setErrorCount(1);
-              const fetchTicket = async () => {
+            setErrorCount(1);
+            const fetchTicket = async () => {
               const response = await fetch("/api/getTicket");
               const data = await response.json();
               setShowError(data.message);
             };
             fetchTicket();
-            setTimeout(() => setShowError(''), 1000 * (15 + 15));
+            setTimeout(() => setShowError(""), 1000 * (15 + 15));
           }
 
           return newTime;
@@ -102,14 +103,14 @@ export default function Home() {
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, errorPageTime, errorCount,timeElapsedSpeed]);
+  }, [isRunning, errorPageTime, errorCount, timeElapsedSpeed]);
 
   const startGame = () => {
     setTimeElapsed(0);
     setIsRunning(true);
     setResult(null);
     setRaindrops([]);
-    setShowError('');
+    setShowError("");
   };
 
   const stopGame = async () => {
@@ -152,7 +153,7 @@ export default function Home() {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ timeElapsed,btnRunningTimes,errorCount })
+          body: JSON.stringify({ timeElapsed, btnRunningTimes, errorCount })
         });
 
         const data = await response.json();
@@ -161,7 +162,7 @@ export default function Home() {
           setIsCorrect(true);
           setTicketCode(data.ticketCode);
           setResult(
-            `เก่งมากกกกกก! รหัสตั๋วคือ: ${data.ticketCode} เอาไปใส่ใน "ใส่โปรโมชันโค้ด" บนหน้าอีเวนต์ป๊อป ได้เลย!`
+            `เก่งมากกกกกก! รหัสตั๋วคือ: ${ticketCode} เอาไปใส่ใน "ใส่โปรโมชันโค้ด" บนหน้าอีเวนต์ป๊อป ได้เลย!`
           );
         } else {
           setResult(`ได้ ${difference} วินาที! ยังไม่ได้นะพยายามอีกนิดนุง`);
@@ -214,7 +215,7 @@ export default function Home() {
 
   return (
     <>
-      {showError!='' && <ErrorPage />}
+      {showError != "" && <ErrorPage />}
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 relative overflow-hidden">
         <div className="text-center z-10 space-y-6">
           <div className="text-5xl font-bold mb-2">
@@ -234,10 +235,19 @@ export default function Home() {
               }}
             >
               <div
-                className={`glitch font-semibold mb-6 ${badluck === 'small' ? 'text-[10px]' : 'text-6xl'}`}
+                className={`glitch font-semibold mb-6 ${
+                  badluck === "small" ? "text-[10px]" : "text-6xl"
+                }`}
                 data-text={timeElapsed.toFixed(2)}
               >
-                {badluck=='duck'?<img className="absolute bottom-[-5rem] left-[-4rem]" src="/duck.gif"></img>:null}
+                {badluck == "duck" ? (
+                  <Image
+                    className="absolute bottom-[-5rem] left-[-4rem]"
+                    src="/duck.gif"
+                    alt="duck"
+                    layout="fill"
+                  />
+                ) : null}
                 {timeElapsed.toFixed(2)} วินาที
               </div>
             </div>
