@@ -145,7 +145,7 @@ export default function Home({
             Stupid Hackathon <span className="text-orange-400">KMUTT</span>
           </div>
           <p className="text-2xl mb-6">
-            ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ {errorCount!=1?15:targetTime} วินาทีสิ อิอิอิ
+            ถ้าอยากได้บัตรก็หยุดเวลาให้ได้ {errorCount<1?15:targetTime} วินาทีสิ อิอิอิ
           </p>
           {isRunning && (
             <div
