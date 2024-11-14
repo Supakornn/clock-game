@@ -18,6 +18,7 @@ export default function Home() {
   const [patternLv, setPatternLv] = useState<number>(1);
   const [showError, setShowError] = useState<boolean>(false);
   const [errorCount, setErrorCount] = useState<number>(0);
+  const [isCorrect, setIsCorrect] = useState<boolean>(false);
 
   const [ticketCode, setTicketCode] = useState<string | null>(null);
 
@@ -64,7 +65,6 @@ export default function Home() {
   };
 
   const stopGame = async () => {
-    // เช็คว่าเวลาที่หยุดยังไม่เกินจากเวลาที่กำหนด (targetTime - 10) และยังไม่ถึงจำนวนการคลิกสูงสุด
     if (timeElapsed > targetTime - 10 && clickCount < btnRunningTimes * patternLv) {
       if (patternLv > 5) setPatternLv(1);
 
@@ -110,17 +110,20 @@ export default function Home() {
         const data = await response.json();
 
         if (data.success) {
+          setIsCorrect(true);
           setTicketCode(data.ticketCode);
-          setResult(`ยินดีด้วย! คุณได้รับตั๋ว! รหัสตั๋วของคุณคือ: ${data.ticketCode}`);
+          setResult(
+            `เก่งมากกกกกก! รหัสตั๋วคือ: ${data.ticketCode} เอาไปใส่ใน "ใส่โปรโมชันโค้ด" บนหน้าอีเวนต์ป๊อป ได้เลย!`
+          );
         } else {
-          setResult(`คุณหยุดที่ ${difference} วินาที! ไม่ได้รับตั๋ว`);
+          setResult(`ได้ ${difference} วินาที! ยังไม่ได้นะพยายามอีกนิดนุง`);
         }
       } catch (error) {
         console.error("Error fetching ticket code:", error);
         setResult(`เกิดข้อผิดพลาดในการขอรหัสตั๋ว!`);
       }
     } else {
-      setResult(`คุณหยุดที่ ${difference} วินาที! ไม่ตรงกับเวลาที่ตั้งไว้`);
+      setResult(`ได้ ${difference} วินาที! ยังไม่ได้นะพยายามอีกนิดนุง`);
     }
   };
 
@@ -191,16 +194,19 @@ export default function Home() {
             </div>
           )}
 
-          <button
-            tabIndex={-1}
-            onClick={(e) => {
-              (() => (isRunning ? stopGame() : startGame()))();
-              (e.target as HTMLButtonElement).blur();
-            }}
-            className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg timer_btn"
-          >
-            {isRunning ? "หยุดเวลา!" : "เริ่มเกมใหม่"}
-          </button>
+          {!isCorrect && (
+            <button
+              tabIndex={-1}
+              onClick={(e) => {
+                (() => (isRunning ? stopGame() : startGame()))();
+                (e.target as HTMLButtonElement).blur();
+              }}
+              className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg timer_btn"
+            >
+              {isRunning ? "หยุดเวลา!" : "เริ่มเกมใหม่"}
+            </button>
+          )}
+
           {result && <p className="mt-6 text-xl text-green-600 font-semibold">{result}</p>}
         </div>
 
