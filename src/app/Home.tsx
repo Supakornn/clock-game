@@ -31,6 +31,7 @@ export default function Home({
   const [raindrops, setRaindrops] = useState<Raindrop[]>([]);
   const [timerPosition, setTimerPosition] = useState({ top: "50%", left: "50%" });
   const [clickCount, setClickCount] = useState<number>(0);
+  const [patternLv, setPatternLv] = useState<number>(1);
   const [showError, setShowError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -64,7 +65,9 @@ export default function Home({
   };
 
   const stopGame = () => {
-    if (timeElapsed > targetTime - 15 && clickCount < btn_running_times) {
+    if (timeElapsed > targetTime - 10 && clickCount < ( btn_running_times * patternLv )) {
+      if (patternLv > 5) setPatternLv(1);
+
       setClickCount(clickCount + 1);
 
       const timer_btn = document.querySelector(".timer_btn") as HTMLElement;
@@ -81,6 +84,7 @@ export default function Home({
       return;
     }
     setClickCount(0);
+    if (timeElapsed > targetTime - 10) setPatternLv(patternLv + 1);
     setIsRunning(false);
     const timer_btn = document.querySelector(".timer_btn") as HTMLElement;
     timer_btn.style.position = "unset";
