@@ -168,7 +168,7 @@ export default function Home({
 
           <button
             tabIndex={-1}
-            onClick={isRunning ? stopGame : startGame}
+            onClick={(e) =>{ isRunning ? stopGame() : startGame();(e.target as HTMLButtonElement).blur();}}
             className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg timer_btn"
           >
             {isRunning ? "หยุดเวลา!" : "เริ่มเกมใหม่"}
