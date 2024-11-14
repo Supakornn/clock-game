@@ -241,11 +241,10 @@ export default function Home() {
                 data-text={timeElapsed.toFixed(2)}
               >
                 {badluck == "duck" ? (
-                  <Image
+                  <img
                     className="absolute bottom-[-5rem] left-[-4rem]"
                     src="/duck.gif"
                     alt="duck"
-                    layout="fill"
                   />
                 ) : null}
                 {timeElapsed.toFixed(2)} วินาที
