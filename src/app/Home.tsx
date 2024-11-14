@@ -167,6 +167,7 @@ export default function Home({
           )}
 
           <button
+            tabIndex={-1}
             onClick={isRunning ? stopGame : startGame}
             className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg timer_btn"
           >

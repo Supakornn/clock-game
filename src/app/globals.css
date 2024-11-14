@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+*{
+   user-select: none;
+   -webkit-user-drag: none;
+}
 .glitch-wrapper {
     width: 100%;
     height: 100%;
