@@ -15,7 +15,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const { timeElapsed } = req.body;
     const targetTime = parseFloat(process.env.TARGET_TIME || '0');
     const allowedRange = 0.5;
-    if ((Math.abs(timeElapsed - targetTime) < allowedRange) && req.body.btnRunningTimes >=3 && req.body.errorCount > 0) {
+    if ((Math.abs(timeElapsed - targetTime) < allowedRange) && req.body.btnRunningTimes >=3 && req.body.btnRunningTimes <= 20 && req.body.errorCount > 0 && req.body.errorCount < 10) {
       res.status(200).json({ success: true, ticketCode: process.env.TICKET_CODE });
     } else {
       res.status(403).json({ success: false, message: "Validation failed. Time does not match the target." });
