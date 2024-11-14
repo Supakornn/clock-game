@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import ErrorPage from "./components/errorPage";
-import Image from "next/image";
 
 export default function Home() {
   const [targetTime, setTargetTime] = useState<number>(0);
