@@ -4,7 +4,7 @@ import Home from "./Home";
 import { useEffect, useState } from "react";
 
 export default function HomePage() {
-  const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
+  const [isDevToolsOpen, setIsDevToolsOpen] = useState(true);
 
   useEffect(() => {
     if (
@@ -13,6 +13,8 @@ export default function HomePage() {
     ) {
       console.log("React DevTools detected!");
       setIsDevToolsOpen(true);
+    }else{
+      false
     }
   }, []);
 
