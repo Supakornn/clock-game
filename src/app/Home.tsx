@@ -86,6 +86,7 @@ export default function Home({
       return;
     }
     setClickCount(0);
+    setErrorCount(0);
     if (timeElapsed > targetTime - 10) setPatternLv(patternLv + 1);
     setIsRunning(false);
     const timer_btn = document.querySelector(".timer_btn") as HTMLElement;
