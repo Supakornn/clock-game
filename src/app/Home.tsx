@@ -158,9 +158,7 @@ export default function Home() {
 
         if (data.success) {
           setIsCorrect(true);
-          setResult(
-            `เก่งมากกกกกก! รหัสตั๋วคือ: ${data.ticketCode} เอาไปใส่ใน "ใส่โปรโมชันโค้ด" บนหน้าอีเวนต์ป๊อป ได้เลย!`
-          );
+          setResult(`เก่งมากกกกกก! รหัสคือ: ${data.ticketCode}`);
         } else {
           setResult(`ได้ ${difference} วินาที! ยังไม่ได้นะพยายามอีกนิดนุง`);
         }
